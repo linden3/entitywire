@@ -21,12 +21,12 @@ trait DataProviders
     /**
      * @return array
      */
-    public function newEntityProvider()
+    public function mappedEntityProvider()
     {
         return array(array(array(
-            Mockery::mock('MappedEntity'),
-            Mockery::mock('MappedEntity'),
-            Mockery::mock('MappedEntity')
+            array(Mockery::mock('MappedEntity1'), Mockery::mock('Mapper1')),
+            array(Mockery::mock('MappedEntity2'), Mockery::mock('Mapper2')),
+            array(Mockery::mock('MappedEntity3'), Mockery::mock('Mapper3'))
         )));
     }
 

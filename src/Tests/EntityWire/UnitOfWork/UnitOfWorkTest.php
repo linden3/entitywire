@@ -74,34 +74,36 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider newEntityProvider
+     * @dataProvider mappedEntityProvider
      *
-     * @param array $newEntities
+     * @param array $mappedEntities
      * @return void
      */
-    public function testNewChecksPresenceOfMapper(array $newEntities)
+    public function testNewChecksPresenceOfMapper(array $mappedEntities)
     {
-        foreach ($newEntities as $entity) {
+        foreach ($mappedEntities as $mappedEntity) {
+            $entity = array_shift($mappedEntity);
+
             $this->mapperRegistry->shouldReceive('hasMapperForEntity')
                 ->with($entity)
                 ->once()
                 ->andReturn(true);
-        }
 
-        foreach ($newEntities as $entity) {
             $this->unitOfWork->registerNew($entity);
         }
     }
 
     /**
-     * @dataProvider newEntityProvider
+     * @dataProvider mappedEntityProvider
      *
-     * @param array $newEntities
+     * @param array $mappedEntities
      * @return void
      */
-    public function testCommitInsertsNewEntitiesIntoMapper(array $newEntities)
+    public function testCommitInsertsNewEntitiesIntoMapper(array $mappedEntities)
     {
-        foreach ($newEntities as $entity) {
+        foreach ($mappedEntities as $mappedEntity) {
+            list($entity, $mapper) = $mappedEntity;
+
             $this->mapperRegistry->shouldReceive('hasMapperForEntity')
                 ->with($entity)
                 ->once()
@@ -110,14 +112,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
             $this->mapperRegistry->shouldReceive('getMapperForEntity')
                 ->with($entity)
                 ->once()
-                ->andReturn($this->mapper);
+                ->andReturn($mapper);
 
-            $this->mapper->shouldReceive('insert')
+            $mapper->shouldReceive('insert')
                 ->with($entity)
                 ->once();
-        }
 
-        foreach ($newEntities as $entity) {
             $this->unitOfWork->registerNew($entity);
         }
 
