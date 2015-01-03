@@ -1,7 +1,8 @@
 <?php
 namespace EntityWire\UnitOfWork;
 
-use EntityWire\Mapper\MapperInterface as EntityMapper;
+use EntityWire\Mapper\EntityMapperInterface as EntityMapper;
+use EntityWire\Transaction\TransactionManagerInterface as TransactionManager;
 use EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException;
 use EntityWire\UnitOfWork\Exception\InvalidEntityException;
 
@@ -11,6 +12,11 @@ use EntityWire\UnitOfWork\Exception\InvalidEntityException;
  */
 class UnitOfWork
 {
+    /**
+     * @var TransactionManager
+     */
+    private $transactionManager;
+
     /**
      * @var MapperRegistry
      */
@@ -22,10 +28,12 @@ class UnitOfWork
     private $entities;
 
     /**
+     * @param TransactionManager $transactionManager
      * @param EntityMapper $entityMapper
      */
-    function __construct(EntityMapper $entityMapper)
+    function __construct(TransactionManager $transactionManager, EntityMapper $entityMapper)
     {
+        $this->transactionManager = $transactionManager;
         $this->entityMapper = $entityMapper;
     }
 
@@ -52,8 +60,12 @@ class UnitOfWork
      */
     public function commit()
     {
+        $this->transactionManager->start();
+
         foreach ($this->entities as $entity) {
             $this->entityMapper->insert($entity);
         }
+
+        $this->transactionManager->commit();
     }
 }

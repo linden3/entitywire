@@ -3,12 +3,12 @@ namespace Tests\EntityWire\UnitOfWork;
 
 use Mockery;
 
-trait DataProviders
+trait DataProvider
 {
     /**
      * @return array
      */
-    public function nonObjectProvider()
+    public function nonObject()
     {
         return array(
             array("NULL", null),
@@ -21,13 +21,13 @@ trait DataProviders
     /**
      * @return array
      */
-    public function mappedEntityProvider()
+    public function multipleEntities()
     {
         return $this->wrapSingle(
             array(
-                Mockery::mock('MappedEntity1'),
-                Mockery::mock('MappedEntity2'),
-                Mockery::mock('MappedEntity3')
+                Mockery::mock('Entity1'),
+                Mockery::mock('Entity2'),
+                Mockery::mock('Entity3')
             )
         );
     }
@@ -35,10 +35,10 @@ trait DataProviders
     /**
      * @return array
      */
-    public function mapperlessEntityProvider()
+    public function singleEntity()
     {
         return $this->wrapSingle(
-            Mockery::mock('MapperlessEntity')
+            Mockery::mock('Entity')
         );
     }
 

@@ -5,7 +5,7 @@ namespace EntityWire\Mapper;
  * Interface RegistryInterface
  * @package EntityWire\Mapper
  */
-interface MapperInterface
+interface EntityMapperInterface
 {
     /**
      * @param mixed $entity

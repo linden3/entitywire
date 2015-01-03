@@ -9,7 +9,18 @@ use EntityWire\UnitOfWork\UnitOfWork;
  */
 class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
 
-    use DataProviders;
+    use DataProvider;
+    use MockProvider;
+
+    /**
+     * @var \Mockery\MockInterface | \EntityWire\Transaction\TransactionManagerInterface
+     */
+    private $transactionManager;
+
+    /**
+     * @var \Mockery\MockInterface | \EntityWire\Mapper\EntityMapperInterface
+     */
+    private $entityMapper;
 
     /**
      * @var UnitOfWork
@@ -17,22 +28,18 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     private $unitOfWork;
 
     /**
-     * @var \Mockery\MockInterface | \EntityWire\Mapper\MapperInterface
-     */
-    private $mapper;
-
-    /**
      * @return void
      */
     public function setUp()
     {
-        $this->mapper = \Mockery::mock('\EntityWire\Mapper\MapperInterface');
+        $this->transactionManager = $this->mockTransactionManager();
+        $this->entityMapper = $this->mockEntityMapper();
 
-        $this->unitOfWork = new UnitOfWork($this->mapper);
+        $this->unitOfWork = new UnitOfWork($this->transactionManager, $this->entityMapper);
     }
 
     /**
-     * @dataProvider nonObjectProvider
+     * @dataProvider nonObject
      *
      * @param string $type
      * @param string $value
@@ -49,25 +56,25 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider mapperlessEntityProvider
+     * @dataProvider singleEntity
      *
-     * @param $mapperlessEntity
+     * @param $unmappedEntity
      * @return void
      */
-    public function testNewFailsIfNoMapperFound($mapperlessEntity)
+    public function testNewFailsWhenNoMapperFound($unmappedEntity)
     {
-        $this->mapper->shouldReceive('mapsEntity')
-            ->with($mapperlessEntity)
+        $this->entityMapper->shouldReceive('mapsEntity')
+            ->with($unmappedEntity)
             ->once()
             ->andReturn(false);
 
         $this->setExpectedException('EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException');
 
-        $this->unitOfWork->registerNew($mapperlessEntity);
+        $this->unitOfWork->registerNew($unmappedEntity);
     }
 
     /**
-     * @dataProvider mappedEntityProvider
+     * @dataProvider multipleEntities
      *
      * @param array $mappedEntities
      * @return void
@@ -75,7 +82,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     public function testNewChecksPresenceOfMapper(array $mappedEntities)
     {
         foreach ($mappedEntities as $mappedEntity) {
-            $this->mapper->shouldReceive('mapsEntity')
+            $this->entityMapper->shouldReceive('mapsEntity')
                 ->with($mappedEntity)
                 ->once()
                 ->andReturn(true);
@@ -85,25 +92,39 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider mappedEntityProvider
+     * @dataProvider multipleEntities
      *
      * @param array $mappedEntities
      * @return void
      */
     public function testCommitInsertsNewEntitiesIntoMapper(array $mappedEntities)
     {
-        $this->mapper->shouldReceive('mapsEntity')
-            ->andReturn(true);
-
         foreach ($mappedEntities as $mappedEntity) {
-
-            $this->mapper->shouldReceive('insert')
+            $this->entityMapper->shouldReceive('insert')
                 ->with($mappedEntity)
                 ->once();
 
             $this->unitOfWork->registerNew($mappedEntity);
         }
 
+        $this->unitOfWork->commit();
+    }
+
+    /**
+     * @dataProvider singleEntity
+     *
+     * @param $entity
+     * @return void
+     */
+    public function testCommitStartsAndClosesTransaction($entity)
+    {
+        $this->transactionManager->shouldReceive('start')
+            ->once();
+
+        $this->transactionManager->shouldReceive('commit')
+            ->once();
+
+        $this->unitOfWork->registerNew($entity);
         $this->unitOfWork->commit();
     }
 
