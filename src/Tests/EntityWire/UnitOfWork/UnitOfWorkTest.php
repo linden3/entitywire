@@ -79,24 +79,6 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param array $mappedEntities
      * @return void
      */
-    public function testNewChecksPresenceOfMapper(array $mappedEntities)
-    {
-        foreach ($mappedEntities as $mappedEntity) {
-            $this->entityMapper->shouldReceive('hasMapFor')
-                ->with($mappedEntity)
-                ->once()
-                ->andReturn(true);
-
-            $this->unitOfWork->registerNew($mappedEntity);
-        }
-    }
-
-    /**
-     * @dataProvider multipleEntities
-     *
-     * @param array $mappedEntities
-     * @return void
-     */
     public function testCommitInsertsNewEntitiesIntoMapper(array $mappedEntities)
     {
         foreach ($mappedEntities as $mappedEntity) {
