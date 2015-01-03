@@ -17,12 +17,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     private $unitOfWork;
 
     /**
-     * @var \Mockery\MockInterface | \EntityWire\Mapper\RegistryInterface
-     */
-    private $mapperRegistry;
-
-    /**
-     * @var \Mockery\MockInterface
+     * @var \Mockery\MockInterface | \EntityWire\Mapper\MapperInterface
      */
     private $mapper;
 
@@ -31,11 +26,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function setUp()
     {
-        $this->mapperRegistry = \Mockery::mock('\EntityWire\Mapper\RegistryInterface');
+        $this->mapper = \Mockery::mock('\EntityWire\Mapper\MapperInterface');
 
-        $this->unitOfWork = new UnitOfWork($this->mapperRegistry);
-
-        $this->mapper = \Mockery::mock('Mapper');
+        $this->unitOfWork = new UnitOfWork($this->mapper);
     }
 
     /**
@@ -63,7 +56,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNewFailsIfNoMapperFound($mapperlessEntity)
     {
-        $this->mapperRegistry->shouldReceive('hasMapperForEntity')
+        $this->mapper->shouldReceive('mapsEntity')
             ->with($mapperlessEntity)
             ->once()
             ->andReturn(false);
@@ -82,14 +75,12 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     public function testNewChecksPresenceOfMapper(array $mappedEntities)
     {
         foreach ($mappedEntities as $mappedEntity) {
-            $entity = array_shift($mappedEntity);
-
-            $this->mapperRegistry->shouldReceive('hasMapperForEntity')
-                ->with($entity)
+            $this->mapper->shouldReceive('mapsEntity')
+                ->with($mappedEntity)
                 ->once()
                 ->andReturn(true);
 
-            $this->unitOfWork->registerNew($entity);
+            $this->unitOfWork->registerNew($mappedEntity);
         }
     }
 
@@ -101,24 +92,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCommitInsertsNewEntitiesIntoMapper(array $mappedEntities)
     {
+        $this->mapper->shouldReceive('mapsEntity')
+            ->andReturn(true);
+
         foreach ($mappedEntities as $mappedEntity) {
-            list($entity, $mapper) = $mappedEntity;
 
-            $this->mapperRegistry->shouldReceive('hasMapperForEntity')
-                ->with($entity)
-                ->once()
-                ->andReturn(true);
-
-            $this->mapperRegistry->shouldReceive('getMapperForEntity')
-                ->with($entity)
-                ->once()
-                ->andReturn($mapper);
-
-            $mapper->shouldReceive('insert')
-                ->with($entity)
+            $this->mapper->shouldReceive('insert')
+                ->with($mappedEntity)
                 ->once();
 
-            $this->unitOfWork->registerNew($entity);
+            $this->unitOfWork->registerNew($mappedEntity);
         }
 
         $this->unitOfWork->commit();

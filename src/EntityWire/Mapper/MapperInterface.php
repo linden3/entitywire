@@ -5,11 +5,11 @@ namespace EntityWire\Mapper;
  * Interface RegistryInterface
  * @package EntityWire\Mapper
  */
-interface RegistryInterface
+interface MapperInterface
 {
     /**
      * @param mixed $entity
      * @return bool
      */
-    public function hasMapperForEntity($entity);
+    public function mapsEntity($entity);
 }

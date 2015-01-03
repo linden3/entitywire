@@ -23,11 +23,13 @@ trait DataProviders
      */
     public function mappedEntityProvider()
     {
-        return array(array(array(
-            array(Mockery::mock('MappedEntity1'), Mockery::mock('Mapper1')),
-            array(Mockery::mock('MappedEntity2'), Mockery::mock('Mapper2')),
-            array(Mockery::mock('MappedEntity3'), Mockery::mock('Mapper3'))
-        )));
+        return $this->wrapSingle(
+            array(
+                Mockery::mock('MappedEntity1'),
+                Mockery::mock('MappedEntity2'),
+                Mockery::mock('MappedEntity3')
+            )
+        );
     }
 
     /**
@@ -35,8 +37,19 @@ trait DataProviders
      */
     public function mapperlessEntityProvider()
     {
-        return array(array(
+        return $this->wrapSingle(
             Mockery::mock('MapperlessEntity')
+        );
+    }
+
+    /**
+     * @param mixed $data
+     * @return array
+     */
+    private function wrapSingle($data)
+    {
+        return array(array(
+            $data
         ));
     }
 }
