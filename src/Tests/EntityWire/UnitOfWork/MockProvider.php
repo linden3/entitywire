@@ -7,8 +7,8 @@ trait MockProvider
     {
         $transactionManager = \Mockery::mock('\EntityWire\Transaction\TransactionManagerInterface');
 
-        $transactionManager->shouldReceive('start')->byDefault();
-        $transactionManager->shouldReceive('commit')->byDefault();
+        $transactionManager->shouldReceive('startTransaction')->byDefault();
+        $transactionManager->shouldReceive('commitTransaction')->byDefault();
 
         return $transactionManager;
     }
@@ -17,7 +17,7 @@ trait MockProvider
     {
         $entityMapper = \Mockery::mock('\EntityWire\Mapper\EntityMapperInterface');
 
-        $entityMapper->shouldReceive('mapsEntity')->andReturn(true)->byDefault();
+        $entityMapper->shouldReceive('hasMapFor')->andReturn(true)->byDefault();
         $entityMapper->shouldReceive('insert')->byDefault();
 
         return $entityMapper;

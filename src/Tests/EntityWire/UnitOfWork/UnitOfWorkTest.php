@@ -63,7 +63,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNewFailsWhenNoMapperFound($unmappedEntity)
     {
-        $this->entityMapper->shouldReceive('mapsEntity')
+        $this->entityMapper->shouldReceive('hasMapFor')
             ->with($unmappedEntity)
             ->once()
             ->andReturn(false);
@@ -82,7 +82,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     public function testNewChecksPresenceOfMapper(array $mappedEntities)
     {
         foreach ($mappedEntities as $mappedEntity) {
-            $this->entityMapper->shouldReceive('mapsEntity')
+            $this->entityMapper->shouldReceive('hasMapFor')
                 ->with($mappedEntity)
                 ->once()
                 ->andReturn(true);
@@ -118,10 +118,10 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testCommitStartsAndClosesTransaction($entity)
     {
-        $this->transactionManager->shouldReceive('start')
+        $this->transactionManager->shouldReceive('startTransaction')
             ->once();
 
-        $this->transactionManager->shouldReceive('commit')
+        $this->transactionManager->shouldReceive('commitTransaction')
             ->once();
 
         $this->unitOfWork->registerNew($entity);

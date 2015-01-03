@@ -48,7 +48,7 @@ class UnitOfWork
             throw new InvalidEntityException($entity);
         }
 
-        if (! $this->entityMapper->mapsEntity($entity)) {
+        if (! $this->entityMapper->hasMapFor($entity)) {
             throw new EntityMapperNotFoundException($entity);
         }
 
@@ -60,12 +60,12 @@ class UnitOfWork
      */
     public function commit()
     {
-        $this->transactionManager->start();
+        $this->transactionManager->startTransaction();
 
         foreach ($this->entities as $entity) {
             $this->entityMapper->insert($entity);
         }
 
-        $this->transactionManager->commit();
+        $this->transactionManager->commitTransaction();
     }
 }

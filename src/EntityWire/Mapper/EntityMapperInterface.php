@@ -11,5 +11,5 @@ interface EntityMapperInterface
      * @param mixed $entity
      * @return bool
      */
-    public function mapsEntity($entity);
+    public function hasMapFor($entity);
 }

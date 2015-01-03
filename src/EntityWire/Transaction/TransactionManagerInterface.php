@@ -3,7 +3,7 @@ namespace EntityWire\Transaction;
 
 interface TransactionManagerInterface
 {
-    public function start();
-    public function commit();
-    public function rollback();
+    public function startTransaction();
+    public function commitTransaction();
+    public function rollbackTransaction();
 }
