@@ -47,9 +47,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNewFailsWhenRegisteringNonObject($type, $value)
     {
-        $this->assumeNonObject($type);
-
-        $this->unitOfWork->registerNew($value);
+        $this->assertFunctionFailsWhenRegisteringNonObject($type, $value, function ($value) {
+            $this->unitOfWork->registerNew($value);
+        });
     }
 
     /**
@@ -60,22 +60,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNewFailsWhenNoMapperFound($entity)
     {
-        $this->assumeUnmappedEntity($entity);
-
-        $this->unitOfWork->registerNew($entity);
-    }
-
-    /**
-     * @dataProvider singleEntity
-     *
-     * @param $entity
-     * @return void
-     */
-    public function testDirtyFailsWhenNoMapperFound($entity)
-    {
-        $this->assumeUnmappedEntity($entity);
-
-        $this->unitOfWork->registerDirty($entity);
+        $this->assertFunctionFailsWhenNoMapperFound($entity, function($entity) {
+            $this->unitOfWork->registerNew($entity);
+        });
     }
 
     /**
@@ -87,9 +74,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testDirtyFailsWhenRegisteringNonObject($type, $value)
     {
-        $this->assumeNonObject($type);
-
-        $this->unitOfWork->registerDirty($value);
+        $this->assertFunctionFailsWhenRegisteringNonObject($type, $value, function ($value) {
+            $this->unitOfWork->registerDirty($value);
+        });
     }
 
     /**
@@ -98,11 +85,11 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $entity
      * @return void
      */
-    public function testDeletedFailsWhenNoMapperFound($entity)
+    public function testDirtyFailsWhenNoMapperFound($entity)
     {
-        $this->assumeUnmappedEntity($entity);
-
-        $this->unitOfWork->registerDeleted($entity);
+        $this->assertFunctionFailsWhenNoMapperFound($entity, function($entity) {
+            $this->unitOfWork->registerDirty($entity);
+        });
     }
 
     /**
@@ -114,9 +101,22 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testDeletedFailsWhenRegisteringNonObject($type, $value)
     {
-        $this->assumeNonObject($type);
+        $this->assertFunctionFailsWhenRegisteringNonObject($type, $value, function ($value) {
+            $this->unitOfWork->registerDeleted($value);
+        });
+    }
 
-        $this->unitOfWork->registerDeleted($value);
+    /**
+     * @dataProvider singleEntity
+     *
+     * @param $entity
+     * @return void
+     */
+    public function testDeletedFailsWhenNoMapperFound($entity)
+    {
+        $this->assertFunctionFailsWhenNoMapperFound($entity, function($entity) {
+            $this->unitOfWork->registerDeleted($entity);
+        });
     }
 
     /**
@@ -215,34 +215,48 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @param $entity
+     * @param callable $registerMethod
      * @return void
      */
-    public function tearDown()
-    {
-        \Mockery::close();
-    }
-
-    /**
-     * @param $unmappedEntity
-     */
-    private function assumeUnmappedEntity($unmappedEntity)
+    private function assertFunctionFailsWhenNoMapperFound($entity, callable $registerMethod)
     {
         $this->entityMapper->shouldReceive('hasMapFor')
-            ->with($unmappedEntity)
+            ->with($entity)
             ->once()
             ->andReturn(false);
 
-        $this->setExpectedException('EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException');
+        $entityClass = get_class($entity);
+
+        $this->setExpectedExceptionRegExp(
+            'EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException',
+            "/$entityClass/"
+        );
+
+        $registerMethod($entity);
     }
 
     /**
      * @param $type
+     * @param $value
+     * @param callable $registerMethod
+     * @return void
      */
-    private function assumeNonObject($type)
+    private function assertFunctionFailsWhenRegisteringNonObject($type, $value, callable $registerMethod)
     {
         $this->setExpectedExceptionRegExp(
             'EntityWire\UnitOfWork\Exception\InvalidEntityException',
             "/$type/"
         );
+
+        $registerMethod($value);
+    }
+
+    /**
+     * @return void
+     */
+    public function tearDown()
+    {
+        \Mockery::close();
     }
 }
