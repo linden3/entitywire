@@ -79,7 +79,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param array $mappedEntities
      * @return void
      */
-    public function testCommitInsertsNewEntitiesIntoMapper(array $mappedEntities)
+    public function testCommitPropagatesAdditionToMapper(array $mappedEntities)
     {
         foreach ($mappedEntities as $mappedEntity) {
             $this->entityMapper->shouldReceive('insert')
