@@ -39,7 +39,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider nonObject
+     * @dataProvider nonObjects
      *
      * @param string $type
      * @param string $value
@@ -76,11 +76,25 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider multipleEntities
      *
-     * @param array $mappedEntities
+     * @param $newAndInsertedEntity
+     * @param $newAndDeletedEntity
      * @return void
      */
     public function testCommitPropagatesAdditionToMapper(array $mappedEntities)
     {
+    /**
+     * @dataProvider multipleEntities
+     *
+     * @param $mappedEntity1
+     * @param $mappedEntity2
+     * @param $mappedEntity3
+     * @throws \EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException
+     * @throws \EntityWire\UnitOfWork\Exception\InvalidEntityException
+     */
+    public function testCommitPropagatesAdditionToMapper($mappedEntity1, $mappedEntity2, $mappedEntity3)
+    {
+        $mappedEntities = array($mappedEntity1, $mappedEntity2, $mappedEntity3);
+
         foreach ($mappedEntities as $mappedEntity) {
             $this->entityMapper->shouldReceive('insert')
                 ->with($mappedEntity)
@@ -95,11 +109,16 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider multipleEntities
      *
-     * @param array $mappedEntities
-     * @return void
+     * @param $deletedEntity1
+     * @param $deletedEntity2
+     * @param $deletedEntity3
+     * @throws \EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException
+     * @throws \EntityWire\UnitOfWork\Exception\InvalidEntityException
      */
-    public function testCommitPropagatesDeletionToMapper(array $mappedEntities)
+    public function testCommitPropagatesDeletionToMapper($deletedEntity1, $deletedEntity2, $deletedEntity3)
     {
+        $mappedEntities = array($deletedEntity1, $deletedEntity2, $deletedEntity3);
+
         foreach ($mappedEntities as $mappedEntity) {
             $this->entityMapper->shouldReceive('delete')
                 ->with($mappedEntity)

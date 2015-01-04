@@ -8,7 +8,7 @@ trait DataProvider
     /**
      * @return array
      */
-    public function nonObject()
+    public function nonObjects()
     {
         return array(
             array("NULL", null),
@@ -23,13 +23,11 @@ trait DataProvider
      */
     public function multipleEntities()
     {
-        return $this->wrapSingle(
-            array(
+        return array(array(
                 Mockery::mock('Entity1'),
                 Mockery::mock('Entity2'),
                 Mockery::mock('Entity3')
-            )
-        );
+        ));
     }
 
     /**
@@ -37,19 +35,8 @@ trait DataProvider
      */
     public function singleEntity()
     {
-        return $this->wrapSingle(
-            Mockery::mock('Entity')
-        );
-    }
-
-    /**
-     * @param mixed $data
-     * @return array
-     */
-    private function wrapSingle($data)
-    {
         return array(array(
-            $data
+            Mockery::mock('Entity')
         ));
     }
 }
