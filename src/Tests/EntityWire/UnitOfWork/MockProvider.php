@@ -5,21 +5,17 @@ trait MockProvider
 {
     private function mockTransactionManager()
     {
-        $transactionManager = \Mockery::mock('\EntityWire\Transaction\TransactionManagerInterface');
-
-        $transactionManager->shouldReceive('startTransaction')->byDefault();
-        $transactionManager->shouldReceive('commitTransaction')->byDefault();
-
-        return $transactionManager;
+        return \Mockery::mock('\EntityWire\Transaction\TransactionManagerInterface', function($transactionManager) {
+            $transactionManager->shouldReceive('startTransaction')->byDefault();
+            $transactionManager->shouldReceive('commitTransaction')->byDefault();
+        });
     }
 
     private function mockEntityMapper()
     {
-        $entityMapper = \Mockery::mock('\EntityWire\Mapper\EntityMapperInterface');
-
-        $entityMapper->shouldReceive('hasMapFor')->andReturn(true)->byDefault();
-        $entityMapper->shouldReceive('insert')->byDefault();
-
-        return $entityMapper;
+        return \Mockery::mock('\EntityWire\Mapper\EntityMapperInterface', function($entityMapper) {
+            $entityMapper->shouldReceive('hasMapFor')->andReturn(true)->byDefault();
+            $entityMapper->shouldReceive('insert')->byDefault();
+        });
     }
 }
