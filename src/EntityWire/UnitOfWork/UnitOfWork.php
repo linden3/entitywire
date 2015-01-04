@@ -64,6 +64,7 @@ class UnitOfWork
      * @param mixed $entity
      * @throws EntityMapperNotFoundException
      * @throws InvalidEntityException
+     * @return void
      */
     public function registerDeleted($entity)
     {
@@ -73,6 +74,13 @@ class UnitOfWork
 
         if (! $this->entityMapper->hasMapFor($entity)) {
             throw new EntityMapperNotFoundException($entity);
+        }
+
+        if (in_array($entity, $this->newEntities)) {
+            // Entity is added and immediately deleted, so it does not need to be added to or deleted from the mapper.
+            // This means that it should be removed from the new entities and not added to the deleted entities.
+            unset($this->newEntities[array_search($entity, $this->newEntities)]);
+            return;
         }
 
         $this->deletedEntities[] = $entity;

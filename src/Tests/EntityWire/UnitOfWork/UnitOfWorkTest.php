@@ -80,8 +80,28 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $newAndDeletedEntity
      * @return void
      */
-    public function testCommitPropagatesAdditionToMapper(array $mappedEntities)
+    public function testDeleteKeepsNewEntitiesFromInsertion($newAndInsertedEntity, $newAndDeletedEntity)
     {
+        $this->entityMapper->shouldReceive('insert')
+            ->with($newAndInsertedEntity)
+            ->once();
+
+        $this->entityMapper->shouldReceive('insert')
+            ->with($newAndDeletedEntity)
+            ->never();
+
+        $this->entityMapper->shouldReceive('delete')
+            ->with($newAndDeletedEntity)
+            ->never();
+
+        $this->unitOfWork->registerNew($newAndInsertedEntity);
+        $this->unitOfWork->registerNew($newAndDeletedEntity);
+
+        $this->unitOfWork->registerDeleted($newAndDeletedEntity);
+
+        $this->unitOfWork->commit();
+    }
+
     /**
      * @dataProvider multipleEntities
      *
