@@ -71,6 +71,33 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $entity
      * @return void
      */
+    public function testDirtyFailsWhenNoMapperFound($entity)
+    {
+        $this->assumeUnmappedEntity($entity);
+
+        $this->unitOfWork->registerDirty($entity);
+    }
+
+    /**
+     * @dataProvider nonObjects
+     *
+     * @param string $type
+     * @param string $value
+     * @return void
+     */
+    public function testDirtyFailsWhenRegisteringNonObject($type, $value)
+    {
+        $this->assumeNonObject($type);
+
+        $this->unitOfWork->registerDirty($value);
+    }
+
+    /**
+     * @dataProvider singleEntity
+     *
+     * @param $entity
+     * @return void
+     */
     public function testDeletedFailsWhenNoMapperFound($entity)
     {
         $this->assumeUnmappedEntity($entity);

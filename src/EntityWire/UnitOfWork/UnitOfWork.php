@@ -60,6 +60,17 @@ class UnitOfWork
      * @throws InvalidEntityException
      * @return void
      */
+    public function registerDirty($entity)
+    {
+        $this->guardSuitabilityOfEntity($entity);
+    }
+
+    /**
+     * @param mixed $entity
+     * @throws EntityMapperNotFoundException
+     * @throws InvalidEntityException
+     * @return void
+     */
     public function registerDeleted($entity)
     {
         $this->guardSuitabilityOfEntity($entity);
