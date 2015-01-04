@@ -49,13 +49,7 @@ class UnitOfWork
      */
     public function registerNew($entity)
     {
-        if (! is_object($entity)) {
-            throw new InvalidEntityException($entity);
-        }
-
-        if (! $this->entityMapper->hasMapFor($entity)) {
-            throw new EntityMapperNotFoundException($entity);
-        }
+        $this->guardSuitabilityOfEntity($entity);
 
         $this->newEntities[] = $entity;
     }
@@ -68,13 +62,7 @@ class UnitOfWork
      */
     public function registerDeleted($entity)
     {
-        if (! is_object($entity)) {
-            throw new InvalidEntityException($entity);
-        }
-
-        if (! $this->entityMapper->hasMapFor($entity)) {
-            throw new EntityMapperNotFoundException($entity);
-        }
+        $this->guardSuitabilityOfEntity($entity);
 
         if (in_array($entity, $this->newEntities)) {
             // If the entity is added and then immediately deleted, it does not need to be added to or deleted from the
@@ -102,5 +90,21 @@ class UnitOfWork
         }
 
         $this->transactionManager->commitTransaction();
+    }
+
+    /**
+     * @param $entity
+     * @throws EntityMapperNotFoundException
+     * @throws InvalidEntityException
+     */
+    private function guardSuitabilityOfEntity($entity)
+    {
+        if (!is_object($entity)) {
+            throw new InvalidEntityException($entity);
+        }
+
+        if (!$this->entityMapper->hasMapFor($entity)) {
+            throw new EntityMapperNotFoundException($entity);
+        }
     }
 }
