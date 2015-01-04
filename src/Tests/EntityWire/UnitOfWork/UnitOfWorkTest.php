@@ -47,10 +47,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNewFailsWhenRegisteringNonObject($type, $value)
     {
-        $this->setExpectedExceptionRegExp(
-            'EntityWire\UnitOfWork\Exception\InvalidEntityException',
-            "/$type/"
-        );
+        $this->assumeNonObject($type);
 
         $this->unitOfWork->registerNew($value);
     }
@@ -58,19 +55,41 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider singleEntity
      *
-     * @param $unmappedEntity
+     * @param $entity
      * @return void
      */
-    public function testNewFailsWhenNoMapperFound($unmappedEntity)
+    public function testNewFailsWhenNoMapperFound($entity)
     {
-        $this->entityMapper->shouldReceive('hasMapFor')
-            ->with($unmappedEntity)
-            ->once()
-            ->andReturn(false);
+        $this->assumeUnmappedEntity($entity);
 
-        $this->setExpectedException('EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException');
+        $this->unitOfWork->registerNew($entity);
+    }
 
-        $this->unitOfWork->registerNew($unmappedEntity);
+    /**
+     * @dataProvider singleEntity
+     *
+     * @param $entity
+     * @return void
+     */
+    public function testDeletedFailsWhenNoMapperFound($entity)
+    {
+        $this->assumeUnmappedEntity($entity);
+
+        $this->unitOfWork->registerDeleted($entity);
+    }
+
+    /**
+     * @dataProvider nonObjects
+     *
+     * @param string $type
+     * @param string $value
+     * @return void
+     */
+    public function testDeletedFailsWhenRegisteringNonObject($type, $value)
+    {
+        $this->assumeNonObject($type);
+
+        $this->unitOfWork->registerDeleted($value);
     }
 
     /**
@@ -174,5 +193,29 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     public function tearDown()
     {
         \Mockery::close();
+    }
+
+    /**
+     * @param $unmappedEntity
+     */
+    private function assumeUnmappedEntity($unmappedEntity)
+    {
+        $this->entityMapper->shouldReceive('hasMapFor')
+            ->with($unmappedEntity)
+            ->once()
+            ->andReturn(false);
+
+        $this->setExpectedException('EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException');
+    }
+
+    /**
+     * @param $type
+     */
+    private function assumeNonObject($type)
+    {
+        $this->setExpectedExceptionRegExp(
+            'EntityWire\UnitOfWork\Exception\InvalidEntityException',
+            "/$type/"
+        );
     }
 }
