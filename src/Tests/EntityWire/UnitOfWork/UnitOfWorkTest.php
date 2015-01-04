@@ -154,8 +154,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $mappedEntity1
      * @param $mappedEntity2
      * @param $mappedEntity3
-     * @throws \EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException
-     * @throws \EntityWire\UnitOfWork\Exception\InvalidEntityException
+     * @return void
      */
     public function testCommitPropagatesAdditionToMapper($mappedEntity1, $mappedEntity2, $mappedEntity3)
     {
@@ -178,8 +177,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $deletedEntity1
      * @param $deletedEntity2
      * @param $deletedEntity3
-     * @throws \EntityWire\UnitOfWork\Exception\EntityMapperNotFoundException
-     * @throws \EntityWire\UnitOfWork\Exception\InvalidEntityException
+     * @return void
      */
     public function testCommitPropagatesDeletionToMapper($deletedEntity1, $deletedEntity2, $deletedEntity3)
     {
