@@ -18,14 +18,19 @@ class UnitOfWork
     private $transactionManager;
 
     /**
-     * @var MapperRegistry
+     * @var EntityMapper
      */
     private $entityMapper;
 
     /**
-     * @var mixed
+     * @var array
      */
-    private $entities;
+    private $newEntities = array();
+
+    /**
+     * @var array
+     */
+    private $deletedEntities = array();
 
     /**
      * @param TransactionManager $transactionManager
@@ -52,7 +57,25 @@ class UnitOfWork
             throw new EntityMapperNotFoundException($entity);
         }
 
-        $this->entities[] = $entity;
+        $this->newEntities[] = $entity;
+    }
+
+    /**
+     * @param mixed $entity
+     * @throws EntityMapperNotFoundException
+     * @throws InvalidEntityException
+     */
+    public function registerDeleted($entity)
+    {
+        if (! is_object($entity)) {
+            throw new InvalidEntityException($entity);
+        }
+
+        if (! $this->entityMapper->hasMapFor($entity)) {
+            throw new EntityMapperNotFoundException($entity);
+        }
+
+        $this->deletedEntities[] = $entity;
     }
 
     /**
@@ -62,8 +85,12 @@ class UnitOfWork
     {
         $this->transactionManager->startTransaction();
 
-        foreach ($this->entities as $entity) {
+        foreach ($this->newEntities as $entity) {
             $this->entityMapper->insert($entity);
+        }
+
+        foreach ($this->deletedEntities as $entity) {
+            $this->entityMapper->delete($entity);
         }
 
         $this->transactionManager->commitTransaction();

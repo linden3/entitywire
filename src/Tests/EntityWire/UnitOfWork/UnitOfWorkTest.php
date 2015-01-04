@@ -93,6 +93,25 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @dataProvider multipleEntities
+     *
+     * @param array $mappedEntities
+     * @return void
+     */
+    public function testCommitPropagatesDeletionToMapper(array $mappedEntities)
+    {
+        foreach ($mappedEntities as $mappedEntity) {
+            $this->entityMapper->shouldReceive('delete')
+                ->with($mappedEntity)
+                ->once();
+
+            $this->unitOfWork->registerDeleted($mappedEntity);
+        }
+
+        $this->unitOfWork->commit();
+    }
+
+    /**
      * @dataProvider singleEntity
      *
      * @param $entity
