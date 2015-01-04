@@ -16,6 +16,7 @@ trait MockProvider
         return \Mockery::mock('\EntityWire\Mapper\EntityMapperInterface', function($entityMapper) {
             $entityMapper->shouldReceive('hasMapFor')->andReturn(true)->byDefault();
             $entityMapper->shouldReceive('insert')->byDefault();
+            $entityMapper->shouldReceive('delete')->byDefault();
         });
     }
 }
