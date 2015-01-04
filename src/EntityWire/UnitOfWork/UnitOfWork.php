@@ -69,6 +69,11 @@ class UnitOfWork
     {
         $this->guardSuitabilityOfEntity($entity);
 
+        if ($this->isRegisteredAsNew($entity)) {
+            // If the entity is added and then immediately marked dirty, it is still new, so no action is required.
+            return;
+        }
+
         $this->dirtyEntities[] = $entity;
     }
 
@@ -82,7 +87,7 @@ class UnitOfWork
     {
         $this->guardSuitabilityOfEntity($entity);
 
-        if (in_array($entity, $this->newEntities)) {
+        if ($this->isRegisteredAsNew($entity)) {
             // If the entity is added and then immediately deleted, it does not need to be added to or deleted from the
             // mapper. This means that it should be removed from the new entities and not added to the deleted entities.
             unset($this->newEntities[array_search($entity, $this->newEntities)]);
@@ -128,5 +133,14 @@ class UnitOfWork
         if (!$this->entityMapper->hasMapFor($entity)) {
             throw new EntityMapperNotFoundException($entity);
         }
+    }
+
+    /**
+     * @param $entity
+     * @return bool
+     */
+    private function isRegisteredAsNew($entity)
+    {
+        return in_array($entity, $this->newEntities);
     }
 }

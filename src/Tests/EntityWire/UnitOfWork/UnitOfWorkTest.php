@@ -148,6 +148,28 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
         $this->unitOfWork->commit();
     }
 
+
+    /**
+     * @dataProvider singleEntity
+     *
+     * @param $newAndDirtyEntity
+     */
+    public function testDirtySkipsNewEntities($newAndDirtyEntity)
+    {
+        $this->entityMapper->shouldReceive('insert')
+            ->with($newAndDirtyEntity)
+            ->once();
+
+        $this->entityMapper->shouldReceive('update')
+            ->with($newAndDirtyEntity)
+            ->never();
+
+        $this->unitOfWork->registerNew($newAndDirtyEntity);
+        $this->unitOfWork->registerDirty($newAndDirtyEntity);
+
+        $this->unitOfWork->commit();
+    }
+
     /**
      * @dataProvider multipleEntities
      *
