@@ -33,6 +33,11 @@ class UnitOfWork
     private $deletedEntities = array();
 
     /**
+     * @var array
+     */
+    private $dirtyEntities = array();
+
+    /**
      * @param TransactionManager $transactionManager
      * @param EntityMapper $entityMapper
      */
@@ -63,6 +68,8 @@ class UnitOfWork
     public function registerDirty($entity)
     {
         $this->guardSuitabilityOfEntity($entity);
+
+        $this->dirtyEntities[] = $entity;
     }
 
     /**
@@ -94,6 +101,10 @@ class UnitOfWork
 
         foreach ($this->newEntities as $entity) {
             $this->entityMapper->insert($entity);
+        }
+
+        foreach ($this->dirtyEntities as $entity) {
+            $this->entityMapper->update($entity);
         }
 
         foreach ($this->deletedEntities as $entity) {

@@ -174,6 +174,29 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider multipleEntities
      *
+     * @param $mappedEntity1
+     * @param $mappedEntity2
+     * @param $mappedEntity3
+     * @return void
+     */
+    public function testCommitUpdatesEntitiesInMapper($mappedEntity1, $mappedEntity2, $mappedEntity3)
+    {
+        $mappedEntities = array($mappedEntity1, $mappedEntity2, $mappedEntity3);
+
+        foreach ($mappedEntities as $mappedEntity) {
+            $this->entityMapper->shouldReceive('update')
+                ->with($mappedEntity)
+                ->once();
+
+            $this->unitOfWork->registerDirty($mappedEntity);
+        }
+
+        $this->unitOfWork->commit();
+    }
+
+    /**
+     * @dataProvider multipleEntities
+     *
      * @param $deletedEntity1
      * @param $deletedEntity2
      * @param $deletedEntity3
