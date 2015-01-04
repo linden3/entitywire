@@ -156,7 +156,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $mappedEntity3
      * @return void
      */
-    public function testCommitPropagatesAdditionToMapper($mappedEntity1, $mappedEntity2, $mappedEntity3)
+    public function testCommitInsertsEntitiesIntoMapper($mappedEntity1, $mappedEntity2, $mappedEntity3)
     {
         $mappedEntities = array($mappedEntity1, $mappedEntity2, $mappedEntity3);
 
@@ -179,7 +179,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase {
      * @param $deletedEntity3
      * @return void
      */
-    public function testCommitPropagatesDeletionToMapper($deletedEntity1, $deletedEntity2, $deletedEntity3)
+    public function testCommitDeletesEntitiesFromMapper($deletedEntity1, $deletedEntity2, $deletedEntity3)
     {
         $mappedEntities = array($deletedEntity1, $deletedEntity2, $deletedEntity3);
 
